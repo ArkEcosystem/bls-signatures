@@ -17,6 +17,7 @@ def key_gen(seed: bytes) -> PrivateKey:
     s = hashlib.sha256()
     s.update(salt)
     salt = s.digest()
+    print('TESTING', salt.hex())
     okm = extract_expand(L, seed + bytes([0]), salt, bytes([0, L]))
     return PrivateKey(int.from_bytes(okm, "big") % default_ec.n)
 
