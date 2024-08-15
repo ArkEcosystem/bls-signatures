@@ -2,7 +2,7 @@ from ec import G1Generator, G2Generator, JacobianPoint, default_ec
 from hkdf import extract_expand
 from private_key import PrivateKey
 from util import hash256
-
+import hashlib
 
 def key_gen(seed: bytes) -> PrivateKey:
     # KeyGen
@@ -13,7 +13,11 @@ def key_gen(seed: bytes) -> PrivateKey:
 
     L = 48
     # `ceil((3 * ceil(log2(r))) / 16)`, where `r` is the order of the BLS 12-381 curve
-    okm = extract_expand(L, seed + bytes([0]), b"BLS-SIG-KEYGEN-SALT-", bytes([0, L]))
+    salt = b"BLS-SIG-KEYGEN-SALT-"
+    s = hashlib.sha256()
+    s.update(salt)
+    salt = s.digest()
+    okm = extract_expand(L, seed + bytes([0]), salt, bytes([0, L]))
     return PrivateKey(int.from_bytes(okm, "big") % default_ec.n)
 
 
